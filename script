@@ -1,47 +1,47 @@
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 10000 no 0 Hawk 1 x_yh_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 10000 no 0 Hawk 1 x_yh_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 10000 no 0 Hawk 0 x_yh_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 10000 no 0 Hawk 0 x_yh_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 60000 no 0 Hawk 0 xxl_cc_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 60000 no 0 Hawk 0 xxl_cc_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 60000 no 0 Hawk 1 xxl_cc_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 60000 no 0 Hawk 1 xxl_cc_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 60000 no 0 Hawk 1 xxl_goog_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 60000 no 0 Hawk 1 xxl_goog_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 60000 no 0 Hawk 0 xxl_goog_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 60000 no 0 Hawk 0 xxl_goog_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 60000 no 0 Hawk 1 xxl_fb_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 60000 no 0 Hawk 1 xxl_fb_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 60000 no 0 Hawk 0 xxl_fb_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 60000 no 0 Hawk 0 xxl_fb_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 20000 no 0 Hawk 1 xl_yh_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 20000 no 0 Hawk 1 xl_yh_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 20000 no 0 Hawk 0 xl_yh_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 20000 no 0 Hawk 0 xl_yh_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 40000 no 0 Hawk 1 x_goog_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 40000 no 0 Hawk 1 x_goog_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 40000 no 0 Hawk 0 x_goog_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 40000 no 0 Hawk 0 x_goog_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 40000 no 0 Hawk 1 x_fb_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 40000 no 0 Hawk 1 x_fb_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 40000 no 0 Hawk 1 x_fb_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 40000 no 0 Hawk 1 x_fb_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 40000 no 0 Hawk 0 x_cc_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 40000 no 0 Hawk 0 x_cc_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 40000 no 0 Hawk 1 x_cc_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 40000 no 0 Hawk 1 x_cc_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 30000 no 0 Hawk 1 xxl_yh_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 30000 no 0 Hawk 1 xxl_yh_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 30000 no 0 Hawk 0 xxl_yh_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/YH.tr yes yes 90.5811 90.5811 100 98 1 2 5 MEAN 0 0 ATC 10000 10 30000 no 0 Hawk 0 xxl_yh_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 50000 no 0 Hawk 1 xl_goog_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 50000 no 0 Hawk 1 xl_goog_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 50000 no 0 Hawk 0 xl_goog_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/GOOG.tr yes yes 1129.532 1129.532 100 83 1 2 5 MEAN 0 0 ATC 10000 10 50000 no 0 Hawk 0 xl_goog_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 50000 no 0 Hawk 1 xl_fb_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 50000 no 0 Hawk 1 xl_fb_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 50000 no 0 Hawk 1 xl_fb_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/FB.tr yes yes 76.5951 76.5951 100 98 1 2 5 MEAN 0 0 RANDOM 10000 10 50000 no 0 Hawk 1 xl_fb_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 50000 no 0 Hawk 0 xl_cc_no_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 50000 no 0 Hawk 0 xl_cc_no_cons_yes_central/ &
 
-/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy pheonix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 50000 no 0 Hawk 1 xl_cc_cons_yes_central/ &
+/home/mdl/pxt176/bin/pypy-5.1.1-linux_x86_64-portable/bin/pypy phoenix.py /home/mdl/pxt176/cluster-cloud/simulation/CCc.tr yes yes 272.783 272.783 100 91 1 2 5 MEAN 0 0 RANDOM 10000 10 50000 no 0 Hawk 1 xl_cc_cons_yes_central/ &
