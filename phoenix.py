@@ -1,4 +1,4 @@
-import sys
+mport sys
 import time
 import logging
 import math
@@ -25,7 +25,7 @@ class Job(object):
         self.start_time             = float(job_args[0])
         self.num_tasks              = int(job_args[1])
         mean_task_duration          = int(float(job_args[2]))
-
+        self.constraint             = 0
         #dephase the incoming job in case it has the exact submission time as another already submitted job
         if self.start_time not in job_start_tstamps:
             job_start_tstamps[self.start_time] = self.start_time
@@ -121,6 +121,7 @@ class JobArrival(Event, file):
         self.job = job
         self.jobs_file = jobs_file
 
+
     def run(self, current_time):
         new_events = []
 
@@ -142,27 +143,35 @@ class JobArrival(Event, file):
 	        if constraint:
 			    if y < 30:  
 					worker_indices = self.simulation.find_workers_arch(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
-            
+        				self.job.constraint = 1    
                 elif y < 40 and x < 60:
 					worker_indices = self.simulation.find_workers_cores(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
-	
+                                        self.job.constraint = 2  
+
                 elif y < 50 and x < 60:
 					worker_indices = self.simulation.find_workers_num_cpus(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
+                                        self.job.constraint = 3    
 
                 elif y < 60 and x < 70:
 					worker_indices = self.simulation.find_workers_kernel(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                                        self.job.constraint = 4    
 
                 elif y < 75 and x < 80:
 					worker_indices = self.simulation.find_workers_min_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
-
+                                        self.job.constraint = 5    
                 elif y < 80 and x < 80:
-	     			worker_indices = self.simulation.find_workers_max_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+	     			        worker_indices = self.simulation.find_workers_max_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                                        self.job.constraint = 6    
 
                 elif y < 88 and x < 60:
-	    			worker_indices = self.simulation.find_workers_clock_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+	    			        worker_indices = self.simulation.find_workers_clock_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                                        self.job.constraint = 7    
+
 
                 elif y < 100 and x < 50:
 					worker_indices = self.simulation.find_workers_eth_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                                        self.job.constraint = 8    
+
 
             else:
                 worker_indices = self.simulation.find_workers_random(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
@@ -268,6 +277,7 @@ class ProbeEvent(Event):
         self.btmap = btmap
 
     def run(self, current_time):
+        #print "*****************adding probes"
         return self.worker.add_probe(self.job_id, self.task_length, self.job_type_for_scheduling, current_time,self.btmap)
 
 #####################################################################################################################
@@ -290,6 +300,7 @@ class ClusterStatusKeeper():
     def update_workers_queue(self, worker_indices, increase, duration):
         for worker in worker_indices:
             queue = self.worker_queues[worker]
+           # print "queue status ",queue
             if increase:
                 queue += duration
                 self.btmap.set(worker) 
@@ -299,7 +310,7 @@ class ClusterStatusKeeper():
                     self.btmap.flip(worker) 
             assert queue >= 0, (" offending value for queue: %r %i " % (queue,worker))
             self.worker_queues[worker] = queue
-
+            print self.worker_queues
 #####################################################################################################################
 #####################################################################################################################
 
@@ -360,17 +371,18 @@ class Worker(object):
     def __init__(self, simulation, num_slots, id, index_last_small, index_first_big):
         
         self.simulation = simulation
-
+     
         # List of times when slots were freed, for each free slot (used to track the time the worker spends idle).
         self.free_slots = []
         while len(self.free_slots) < num_slots:
+            #print len(self.free_slots),num_slots,id
             self.free_slots.append(0)
 
         self.queued_big = 0
         self.queued_probes = []
         self.id = id
         self.executing_big = False
-
+        self.constraint = []
         self.tstamp_start_crt_big_task = -1
         self.estruntime_crt_task = -1
 
@@ -384,9 +396,36 @@ class Worker(object):
 
         self.btmap = None
         self.btmap_tstamp = -1
+        
+        if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(TOTAL_WORKERS))):
+           self.constraint.append(1)
 
+	if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.6*TOTAL_WORKERS))):
+           self.constraint.append(2)
+
+        if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.2*TOTAL_WORKERS))):
+           self.constraint.append(3)
+
+        if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.45*TOTAL_WORKERS))):
+           self.constraint.append(4)
+
+        if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.75*TOTAL_WORKERS))):
+           self.constraint.append(5)
+
+        if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.69*TOTAL_WORKERS))):
+           self.constraint.append(6)
+        
+        if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.22*TOTAL_WORKERS))):
+           self.constraint.append(7)
+        
+        if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.58*TOTAL_WORKERS))):
+           self.constraint.append(8)
 
     #Worker class
+
+	#def reorder_queued_probes(self, current_time):
+		#self.queued_probes.sort(key=lambda tup: tup[1])
+
     def add_probe(self, job_id, task_length, job_type_for_scheduling, current_time, btmap):
         global stats
 
@@ -395,11 +434,13 @@ class Worker(object):
             stats.STATS_SH_QUEUED_BEHIND_BIG += 1        
 
         self.queued_probes.append([job_id,task_length,(self.executing_big == True or self.queued_big > 0), 0, False])
-
+        #print self.queued_probes
         if (long_job):
             self.queued_big     = self.queued_big + 1
             self.btmap          = copy.deepcopy(btmap)
             self.btmap_tstamp   = current_time
+        #self.reorder_queued_probes(current_time)        
+        #self.queued_probes.sort(key=lambda tup: tup[1])
 
         if len(self.queued_probes) > 0 and len(self.free_slots) > 0:
             return self.process_next_probe_in_the_queue(current_time)
@@ -719,19 +760,21 @@ class Worker(object):
 
 class Simulation(object):
     def __init__(self, monitor_interval, stealing_allowed, SCHEDULE_BIG_CENTRALIZED, WORKLOAD_FILE,small_job_th,cutoff_big_small,ESTIMATION,off_mean_bottom,off_mean_top,nr_workers):
-
+		
         CUTOFF_THIS_EXP = float(small_job_th)
         TOTAL_WORKERS = int(nr_workers)
         self.total_free_slots = SLOTS_PER_WORKER * TOTAL_WORKERS
         self.jobs = {}
         self.event_queue = Queue.PriorityQueue()
         self.workers = []
+        
 
         self.index_last_worker_of_small_partition = int(SMALL_PARTITION*TOTAL_WORKERS*SLOTS_PER_WORKER/100)-1
         self.index_first_worker_of_big_partition  = int((100-BIG_PARTITION)*TOTAL_WORKERS*SLOTS_PER_WORKER/100)
-
+        
         while len(self.workers) < TOTAL_WORKERS:
-            self.workers.append(Worker(self, SLOTS_PER_WORKER, len(self.workers),self.index_last_worker_of_small_partition,self.index_first_worker_of_big_partition))
+             self.workers.append(Worker(self, SLOTS_PER_WORKER, len(self.workers),self.index_last_worker_of_small_partition,self.index_first_worker_of_big_partition))
+            
         self.worker_indices = range(TOTAL_WORKERS)
         self.off_mean_bottom = off_mean_bottom
         self.off_mean_top = off_mean_top
@@ -808,7 +851,7 @@ class Simulation(object):
         chosen_worker_indices = []
         nr_probes = max(probe_ratio*nr_tasks,MIN_NR_PROBES)
         for it in range(0,nr_probes):
-            rnd_index = random.randint(0,int((len(possible_worker_indices)-1)%len(possible_worker_indices)))
+            rnd_index = random.randint(0,int((len(posble_worker_indices)-1)%len(possible_worker_indices)))
             chosen_worker_indices.append(possible_worker_indices[rnd_index])
         return chosen_worker_indices
 
@@ -1160,6 +1203,7 @@ class Simulation(object):
             assert current_time >= last_time
             last_time = current_time
             new_events = event.run(current_time)
+            #print "probe addeed****************"
             for new_event in new_events:
                 self.event_queue.put(new_event)
 
@@ -1249,3 +1293,4 @@ print >> stats_file, "STATS_STEALING_MESSAGES:         ",           stats.STATS_
 print >> stats_file, "STATS_STICKY_PROBES:             ",           stats.STATS_STICKY_PROBES
 
 stats_file.close()
+
