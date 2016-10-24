@@ -1,4 +1,4 @@
-mport sys
+import sys
 import time
 import logging
 import math
@@ -1293,4 +1293,3 @@ print >> stats_file, "STATS_STEALING_MESSAGES:         ",           stats.STATS_
 print >> stats_file, "STATS_STICKY_PROBES:             ",           stats.STATS_STICKY_PROBES
 
 stats_file.close()
-
