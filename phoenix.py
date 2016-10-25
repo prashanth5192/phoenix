@@ -1,4 +1,4 @@
-mport sys
+import sys
 import time
 import logging
 import math
@@ -140,41 +140,42 @@ class JobArrival(Event, file):
             if SYSTEM_SIMULATED == "IdealEagle":
                 possible_worker_indices = self.simulation.get_list_non_long_job_workers_from_btmap(self.simulation.cluster_status_keeper.get_btmap())
             
-	        if constraint:
-			    if y < 30:  
-					worker_indices = self.simulation.find_workers_arch(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
-        				self.job.constraint = 1    
-                elif y < 40 and x < 60:
-					worker_indices = self.simulation.find_workers_cores(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
-                                        self.job.constraint = 2  
+            if CONSTRAINT_SET:
 
-                elif y < 50 and x < 60:
-					worker_indices = self.simulation.find_workers_num_cpus(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
-                                        self.job.constraint = 3    
+                if x < 100:
+                    if y < 30:  
+                       worker_indices = self.simulation.find_workers_arch(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
+                       self.job.constraint = 1    
+                    elif y < 40 and x < 60:
+                       worker_indices = self.simulation.find_workers_cores(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
+                       self.job.constraint = 2  
 
-                elif y < 60 and x < 70:
-					worker_indices = self.simulation.find_workers_kernel(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
-                                        self.job.constraint = 4    
+                    elif y < 50 and x < 60:
+                       worker_indices = self.simulation.find_workers_num_cpus(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
+                       self.job.constraint = 3    
 
-                elif y < 75 and x < 80:
-					worker_indices = self.simulation.find_workers_min_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
-                                        self.job.constraint = 5    
-                elif y < 80 and x < 80:
-	     			        worker_indices = self.simulation.find_workers_max_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
-                                        self.job.constraint = 6    
+                    elif y < 60 and x < 70:
+                       worker_indices = self.simulation.find_workers_kernel(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                       self.job.constraint = 4    
 
-                elif y < 88 and x < 60:
-	    			        worker_indices = self.simulation.find_workers_clock_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
-                                        self.job.constraint = 7    
+                    elif y < 75 and x < 80:
+                       worker_indices = self.simulation.find_workers_min_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                       self.job.constraint = 5    
+                
+                    elif y < 80 and x < 80:
+                       worker_indices = self.simulation.find_workers_max_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                       self.job.constraint = 6    
 
+                    elif y < 88 and x < 60:
+                       worker_indices = self.simulation.find_workers_clock_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                       self.job.constraint = 7    
 
-                elif y < 100 and x < 50:
-					worker_indices = self.simulation.find_workers_eth_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
-                                        self.job.constraint = 8    
+                    elif y < 100 and x < 50:
+                       worker_indices = self.simulation.find_workers_eth_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                       self.job.constraint = 8    
 
-
-            else:
-                worker_indices = self.simulation.find_workers_random(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
+                else:
+                    worker_indices = self.simulation.find_workers_random(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
         
         else:
             #print current_time, ":   Big Job arrived!!", self.job.id, " num tasks ", self.job.num_tasks, " estimated_duration ", self.job.estimated_task_duration
@@ -232,6 +233,10 @@ class PeriodicTimerEvent(Event):
         small_load       = str(int(10000*(1-self.simulation.free_slots_small_partition*1.0/len(self.simulation.small_partition_workers)))/100.0)
         big_load         = str(int(10000*(1-self.simulation.free_slots_big_partition*1.0/len(self.simulation.big_partition_workers)))/100.0)
         small_not_big_load ="N/A"
+
+        if total_load > 80:
+           self.simulation.estimate_wait_time(1)
+		
         if(len(self.simulation.small_not_big_partition_workers)!=0):
             small_not_big_load        = str(int(10000*(1-self.simulation.free_slots_small_not_big_partition*1.0/len(self.simulation.small_not_big_partition_workers)))/100.0)
 
@@ -287,6 +292,7 @@ class ClusterStatusKeeper():
     def __init__(self):
         self.worker_queues = {}
         self.btmap = bitmap.BitMap(TOTAL_WORKERS)
+        self.cmap = bitmap.BitMap(TOTAL_WORKERS)
         for i in range(0, TOTAL_WORKERS):
            self.worker_queues[i] = 0
 
@@ -296,6 +302,9 @@ class ClusterStatusKeeper():
 
     def get_btmap(self):
         return self.btmap
+    
+    def get_cmap(self):
+        return self.cmap
 
     def update_workers_queue(self, worker_indices, increase, duration):
         for worker in worker_indices:
@@ -310,7 +319,7 @@ class ClusterStatusKeeper():
                     self.btmap.flip(worker) 
             assert queue >= 0, (" offending value for queue: %r %i " % (queue,worker))
             self.worker_queues[worker] = queue
-            print self.worker_queues
+            #print self.worker_queues
 #####################################################################################################################
 #####################################################################################################################
 
@@ -382,7 +391,7 @@ class Worker(object):
         self.queued_probes = []
         self.id = id
         self.executing_big = False
-        self.constraint = []
+        self.constraint = set()
         self.tstamp_start_crt_big_task = -1
         self.estruntime_crt_task = -1
 
@@ -397,30 +406,46 @@ class Worker(object):
         self.btmap = None
         self.btmap_tstamp = -1
         
-        if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(TOTAL_WORKERS))):
-           self.constraint.append(1)
+        '''if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(TOTAL_WORKERS))):
+           self.constraint.add(1)
+           self.simulation.cluster_status_keeper.get_cmap()
+           btmap.set(self.id)
 
-	if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.6*TOTAL_WORKERS))):
-           self.constraint.append(2)
+        if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.6*TOTAL_WORKERS))):
+           constraint.add(2)
+           self.simulation.cluster_status_keeper.get_cmap()
+           btmap.set(self.id)
 
         if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.2*TOTAL_WORKERS))):
-           self.constraint.append(3)
+           self.constraint.add(3)
+           self.simulation.cluster_status_keeper.get_cmap()
+           btmap.set(self.id)
 
         if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.45*TOTAL_WORKERS))):
-           self.constraint.append(4)
+           self.constraint.add(4)
+           self.simulation.cluster_status_keeper.get_cmap()
+           btmap.set(self.id)
 
         if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.75*TOTAL_WORKERS))):
-           self.constraint.append(5)
+           self.constraint.add(5)
+           self.simulation.cluster_status_keeper.get_cmap()
+           btmap.set(self.id)
 
         if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.69*TOTAL_WORKERS))):
-           self.constraint.append(6)
+           self.constraint.add(6)
+           self.simulation.cluster_status_keeper.get_cmap()
+           btmap.set(self.id)
         
         if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.22*TOTAL_WORKERS))):
-           self.constraint.append(7)
+           self.constraint.add(7)
+           self.simulation.cluster_status_keeper.get_cmap()
+           btmap.set(self.id)
         
         if self.id >0 and self.id < (int(((TOTAL_WORKERS)-1)%(0.58*TOTAL_WORKERS))):
-           self.constraint.append(8)
-
+           self.constraint.add(8)
+           self.simulation.cluster_status_keeper.get_cmap()
+           btmap.set(self.id)
+'''
     #Worker class
 
 	#def reorder_queued_probes(self, current_time):
@@ -434,7 +459,8 @@ class Worker(object):
             stats.STATS_SH_QUEUED_BEHIND_BIG += 1        
 
         self.queued_probes.append([job_id,task_length,(self.executing_big == True or self.queued_big > 0), 0, False])
-        #print self.queued_probes
+        
+		#print self.queued_probes
         if (long_job):
             self.queued_big     = self.queued_big + 1
             self.btmap          = copy.deepcopy(btmap)
@@ -757,6 +783,14 @@ class Worker(object):
 
 #####################################################################################################################
 #####################################################################################################################
+	
+
+######################################################################################################################
+#####################################################################################################################
+
+####################################################################################################################
+#####################################################################################################################
+
 
 class Simulation(object):
     def __init__(self, monitor_interval, stealing_allowed, SCHEDULE_BIG_CENTRALIZED, WORKLOAD_FILE,small_job_th,cutoff_big_small,ESTIMATION,off_mean_bottom,off_mean_top,nr_workers):
@@ -767,7 +801,8 @@ class Simulation(object):
         self.jobs = {}
         self.event_queue = Queue.PriorityQueue()
         self.workers = []
-        
+        self.btmap = None
+        self.constraint_array = []
 
         self.index_last_worker_of_small_partition = int(SMALL_PARTITION*TOTAL_WORKERS*SLOTS_PER_WORKER/100)-1
         self.index_first_worker_of_big_partition  = int((100-BIG_PARTITION)*TOTAL_WORKERS*SLOTS_PER_WORKER/100)
@@ -799,6 +834,42 @@ class Simulation(object):
         self.small_not_big_partition_workers = self.worker_indices[:self.index_first_worker_of_big_partition]  # so not including the worker after: 
         for node in self.small_not_big_partition_workers:
             self.small_not_big_partition_workers_hash[node] = 1
+
+        self.constraint_array.append(0)
+        self.constraint_array.append(random.randint(0,0.35*TOTAL_WORKERS))
+        self.constraint_array.append(random.randint(0,0.75*TOTAL_WORKERS))
+        self.constraint_array.append(random.randint(0,0.50*TOTAL_WORKERS))
+        self.constraint_array.append(random.randint(0,0.20*TOTAL_WORKERS))
+        self.constraint_array.append(random.randint(0,0.65*TOTAL_WORKERS))
+        self.constraint_array.append(random.randint(0,0.75*TOTAL_WORKERS))
+        self.constraint_array.append(random.randint(0,0.40*TOTAL_WORKERS))
+        
+        for index in range(0,TOTAL_WORKERS):
+            if index >0 and index < (int(((TOTAL_WORKERS)-1)%(TOTAL_WORKERS))):
+               self.workers[index].constraint.add(1)
+               #self.cluster_status_keeper.get_cmap()
+               #btmap.set(self.id)
+            
+            if index > self.constraint_array[1] and index < (self.constraint_array[1] + TOTAL_WORKERS):
+               self.workers[index].constraint.add(2)
+
+            if index > self.constraint_array[2] and index < (self.constraint_array[2] + (0.2*TOTAL_WORKERS)):
+               self.workers[index].constraint.add(3)
+
+            if index > self.constraint_array[3] and index < (self.constraint_array[3] + (0.45*TOTAL_WORKERS)):
+               self.workers[index].constraint.add(4)
+
+            if index > self.constraint_array[4] and index < (self.constraint_array[4] + (0.75*TOTAL_WORKERS)):
+               self.workers[index].constraint.add(5)
+
+            if index > self.constraint_array[5] and index < (self.constraint_array[5] + (0.69*TOTAL_WORKERS)):
+               self.workers[index].constraint.add(6)
+        
+            if index > self.constraint_array[6] and index < (self.constraint_array[6] + (0.22*TOTAL_WORKERS)):
+               self.workers[index].constraint.add(7)
+        
+            if index > self.constraint_array[7] and index < (self.constraint_array[7] + (0.58*TOTAL_WORKERS)):
+               self.workers[index].constraint.add(8)
 
 
         #print "Size of self.small_partition_workers_hash:         ", len(self.small_partition_workers_hash)
@@ -837,6 +908,34 @@ class Simulation(object):
 
         return difference
 
+	
+	#simulation class Estimated wait time
+    def estimate_wait_time(self, val):
+        #print len(self.workers[1].queued_probes)
+        constrained_queues = []
+        constrained_queues = self.get_list_constrained_workers_from_btmap(self.cluster_status_keeper.get_cmap())
+        for index in range(0,len(constrained_queues)):
+            if len(self.workers[constrained_queues[index]].queued_probes) > 1:
+               print "length of woker", constrained_queues[index]," is ",len(self.workers[constrained_queues[index]].queued_probes)
+	        #print constrained_queues[index]
+
+    def update_constrained_list(self,btmap):
+        #count = 0
+        for index in range(0, TOTAL_WORKERS):
+            if self.workers[index].constraint:
+			  # print "++++++++constraints"
+               #if 6 in self.workers[index].constraint:
+                  #print "6 constraint"
+               btmap.set(index)
+        #print "constraints ",count
+
+	#simulation class Estimated wait time
+    def get_list_constrained_workers_from_btmap(self,btmap):
+        constrained_workers = []
+        for index in range(0, TOTAL_WORKERS):
+            if btmap.test(index):
+               constrained_workers.append(index)
+        return constrained_workers
 
     #Simulation class
     def find_workers_random(self, probe_ratio, nr_tasks, possible_worker_indices):
@@ -851,7 +950,7 @@ class Simulation(object):
         chosen_worker_indices = []
         nr_probes = max(probe_ratio*nr_tasks,MIN_NR_PROBES)
         for it in range(0,nr_probes):
-            rnd_index = random.randint(0,int((len(posble_worker_indices)-1)%len(possible_worker_indices)))
+            rnd_index = random.randint(0,int((len(possible_worker_indices)-1)%len(possible_worker_indices)))
             chosen_worker_indices.append(possible_worker_indices[rnd_index])
         return chosen_worker_indices
 
@@ -1198,6 +1297,8 @@ class Simulation(object):
         self.jobs_scheduled = 1
         self.event_queue.put((float(line.split()[0]), PeriodicTimerEvent(self)))
 
+
+        self.update_constrained_list(self.cluster_status_keeper.get_cmap())
         while (not self.event_queue.empty()):
             current_time, event = self.event_queue.get()
             assert current_time >= last_time
@@ -1223,7 +1324,7 @@ if(len(sys.argv) != 23):
     print "Incorrent number of parameters."
     sys.exit(1)
 
-
+count							= 0
 WORKLOAD_FILE                   = sys.argv[1]
 stealing                        = (sys.argv[2] == "yes")
 SCHEDULE_BIG_CENTRALIZED        = (sys.argv[3] == "yes")
@@ -1244,7 +1345,7 @@ TOTAL_WORKERS                   = int(sys.argv[17])
 SRPT_ENABLED                    = (sys.argv[18] == "yes")
 HEARTBEAT_DELAY                 = int(sys.argv[19])
 SYSTEM_SIMULATED                = sys.argv[20]  
-CONSTRAINT						= sys.argv[21]
+CONSTRAINT_SET					= sys.argv[21]
 FOLDER_NAME						= sys.argv[22]
 
 if not os.path.exists(os.path.dirname(FOLDER_NAME)):
