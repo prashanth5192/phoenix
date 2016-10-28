@@ -80,8 +80,6 @@ class Job(object):
     def file_task_execution_time(self, job_args):
         for task_duration in (job_args[3:]):
            self.unscheduled_tasks.appendleft(int(float(task_duration)))
-           if int(float(task_duration)) > 20000:
-              print task_duration
         assert(len(self.unscheduled_tasks) == self.num_tasks)
 
     #Job class
@@ -254,10 +252,14 @@ class PeriodicTimerEvent(Event):
         big_load         = str(int(10000*(1-self.simulation.free_slots_big_partition*1.0/len(self.simulation.big_partition_workers)))/100.0)
         small_not_big_load ="N/A"
 
-        if threshold_load > 80:
+        if (CRV_ENABLED):
+           if threshold_load > 80:
            #print "load is ",total_load
-           self.simulation.estimate_wait_time(1)
-		
+              self.simulation.CRV_ENABLED = 1
+              self.simulation.estimate_wait_time()
+           else:
+              self.simulation.CRV_ENABLED = 0
+
         if(len(self.simulation.small_not_big_partition_workers)!=0):
             small_not_big_load        = str(int(10000*(1-self.simulation.free_slots_small_not_big_partition*1.0/len(self.simulation.small_not_big_partition_workers)))/100.0)
 
@@ -317,8 +319,8 @@ class NodeStatusKeeper(Event):
     def run(self, current_time):
         new_events = []
         #self.simulation.estimate_wait_time(1)
-        for i in range(0,8):
-            self.simulation.CRV.append(float(float(self.simulation.constraint_util[i][0]) / float(self.simulation.constraint_util[i][1])))
+        #for i in range(0,8):
+         #   self.simulation.CRV.append(float(float(self.simulation.constraint_util[i][0]) / float(self.simulation.constraint_util[i][1])))
             #print self.simulation.CRV[i],self.simulation.constraint_util[i][0],self.simulation.constraint_util[i][1]
         #print "\n"
         
@@ -638,7 +640,10 @@ class Worker(object):
         self.free_slots.pop(0)
         self.simulation.decrease_free_slots_for_load_tracking(self)
         
-        if (SRPT_ENABLED):
+        if (self.simulation.CRV_ENABLED):
+           pos = self.get_next_probe_acc_to_crv(current_time)
+
+        elif (SRPT_ENABLED):
             if (SYSTEM_SIMULATED == "Eagle"):
                 pos = self.get_next_probe_acc_to_sbp_srpt(current_time)
                 if (pos == -1):
@@ -778,7 +783,65 @@ class Worker(object):
 
         return position_in_queue
 
-    #Worker class
+	#Worker class	
+    def get_next_probe_acc_to_crv(self, current_time):
+        min_remaining_exec_time = float('inf')
+        position_in_queue       = -1
+        estimated_delay         = 0
+        chosen_is_big           = False    
+        crv_delay				= 0
+
+        shortest_slack_in_front_short = float('inf')
+
+        len_queue = len(self.queued_probes)
+        position_it = 0
+        while position_it < len_queue:
+            job_id    = self.queued_probes[position_it][0]
+            remaining = self.get_remaining_exec_time_for_job_dist(job_id, current_time)
+            crv_thresh = self.simulation.CRV[self.simulation.jobs[job_id].constraint -1]
+
+            # Improvement: taking out probes of finished jobs
+            if (remaining == -1):
+                self.queued_probes.pop(position_it)
+                len_queue = len(self.queued_probes)
+            else:
+                job_bydef_big = self.simulation.jobs[job_id].job_type_for_comparison == BIG
+                estimated_task_duration = self.simulation.jobs[job_id].estimated_task_duration
+
+                jump_ok = False
+                if(job_bydef_big):
+                    jump_ok = True
+                    chosen_is_big = True
+                elif(crv_thresh > crv_delay):
+                    assert(not chosen_is_big)
+                    # Check CAP jobs in front, different for short
+                    jump_ok = estimated_task_duration <= shortest_slack_in_front_short
+
+                if(jump_ok):
+                    position_in_queue = position_it
+                    estimated_delay = estimated_task_duration
+                    min_remanining_exec_time = remaining
+                    crv_delay = crv_thresh
+                    chosen_is_big = job_bydef_big
+                    if (chosen_is_big):
+                        break;
+
+                    # calculate shortest slack for next probes
+                if (CAP_SRPT_SBP != float('inf')):
+                    slack = CAP_SRPT_SBP*estimated_task_duration - self.queued_probes[position_it][3]
+                    if(CAP_SRPT_SBP == 0):
+                        assert(self.queued_probes[position_it][3]==0)
+                    assert (slack>=0), " offending value slack: %r CAP %r" % (slack, CAP_SRPT_SBP)
+
+                    if(not job_bydef_big and slack < shortest_slack_in_front_short):
+                        shortest_slack_in_front_short = slack
+                position_it += 1
+
+        #assert(position_in_queue>=0)
+
+        return position_in_queue
+    
+	#Worker class
     def get_next_probe_acc_to_srpt(self, current_time):
         min_remaining_exec_time = float('inf')
         position_in_queue       = -1
@@ -853,7 +916,7 @@ class Simulation(object):
         self.constraint_util = []
         self.index_last_worker_of_small_partition = int(SMALL_PARTITION*TOTAL_WORKERS*SLOTS_PER_WORKER/100)-1
         self.index_first_worker_of_big_partition  = int((100-BIG_PARTITION)*TOTAL_WORKERS*SLOTS_PER_WORKER/100)
-        
+        self.CRV_ENABLED = 0
         while len(self.workers) < TOTAL_WORKERS:
              self.workers.append(Worker(self, SLOTS_PER_WORKER, len(self.workers),self.index_last_worker_of_small_partition,self.index_first_worker_of_big_partition))
             
@@ -882,6 +945,14 @@ class Simulation(object):
         for node in self.small_not_big_partition_workers:
             self.small_not_big_partition_workers_hash[node] = 1
 
+        self.CRV.append(float(2))
+        self.CRV.append(float(1.9054))
+        self.CRV.append(float(1.9054))
+        self.CRV.append(float(0.9121))
+        self.CRV.append(float(1.966))
+        self.CRV.append(float(1.777))
+        self.CRV.append(float(1.7567))
+        self.CRV.append(float(1.9122))
         self.constraint_array.append(TOTAL_WORKERS)
         self.constraint_array.append(random.randint(0,0.35*TOTAL_WORKERS))
         self.constraint_array.append(random.randint(0,0.75*TOTAL_WORKERS))
@@ -966,9 +1037,10 @@ class Simulation(object):
 
 	
 	#simulation class Estimated wait time
-    def estimate_wait_time(self, val):
+    def estimate_wait_time(self):
         #print len(self.workers[1].queued_probes)
         job_start_time = []
+        count = 0
         constrained_queues = []
         constrained_queues = self.get_list_constrained_workers_from_btmap(self.cluster_status_keeper.get_cmap())
         for index in range(0,len(constrained_queues)):
@@ -978,7 +1050,7 @@ class Simulation(object):
             queued_probes = np.array(self.workers[constrained_queues[index]].queued_probes)
             if queued_probes.any():
                for i in range(0,len(queued_probes)):
-			       job_start_time.append(queued_probes[i][5])
+                   job_start_time.append(queued_probes[i][5])
                #print job_start_time
                np_job_start_time = np.array(job_start_time)
                #if np.ediff1d(np_job_start_time).any():
@@ -988,8 +1060,10 @@ class Simulation(object):
                sigma = self.workers[constrained_queues[index]].last_executed_task #self.jobs[self.workers[constrained_queues[index]].last_executed_task].estimated_task_duration
 
                Prow = (Lambda)/sigma
+               if (Prow) > 1.0:
+                  count = count + 1
                #print "last task time ",Prow,Lambda,sigma
-        print "*i*********************************"
+        #print count,len(constrained_queues),"*i*********************************"
 
     def update_constrained_list(self,btmap):
         #count = 0
@@ -1379,6 +1453,7 @@ class Simulation(object):
         self.update_constrained_list(self.cluster_status_keeper.get_cmap())
         while (not self.event_queue.empty()):
             current_time, event = self.event_queue.get()
+            #print event
             assert current_time >= last_time
             last_time = current_time
             new_events = event.run(current_time)
@@ -1397,7 +1472,7 @@ SMALL = 0
 
 job_start_tstamps = {}
 
-if(len(sys.argv) != 23):
+if(len(sys.argv) != 24):
     print "Incorrent number of parameters."
     sys.exit(1)
 
@@ -1423,7 +1498,8 @@ SRPT_ENABLED                    = (sys.argv[18] == "yes")
 HEARTBEAT_DELAY                 = int(sys.argv[19])
 SYSTEM_SIMULATED                = sys.argv[20]  
 CONSTRAINT_SET					= sys.argv[21]
-FOLDER_NAME						= sys.argv[22]
+CRV_ENABLED						= sys.argv[22]
+FOLDER_NAME						= sys.argv[23]
 
 if not os.path.exists(os.path.dirname(FOLDER_NAME)):
 	try:
