@@ -640,7 +640,7 @@ class Worker(object):
         self.free_slots.pop(0)
         self.simulation.decrease_free_slots_for_load_tracking(self)
         
-        if (self.simulation.CRV_ENABLED):
+        if (self.simulation.CRV_ENABLED && CRV_ENABLED):
            pos = self.get_next_probe_acc_to_crv(current_time)
 
         elif (SRPT_ENABLED):
