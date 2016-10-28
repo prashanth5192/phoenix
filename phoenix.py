@@ -147,49 +147,49 @@ class JobArrival(Event, file):
                     if y < 30:  
                        worker_indices = self.simulation.find_workers_arch(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
                        self.job.constraint = 1
-                       self.simulation.constraint_util[0][0] = self.simulation.constraint_util[0][0] + len(worker_indices)
-                       self.simulation.constraint_util[0][1] = self.simulation.constraint_util[0][1] - len(worker_indices) 
+                       #self.simulation.constraint_util[0][0] = self.simulation.constraint_util[0][0] + len(worker_indices)
+                       #self.simulation.constraint_util[0][1] = self.simulation.constraint_util[0][1] - len(worker_indices) 
                     elif y < 40 and x < 60:
                        worker_indices = self.simulation.find_workers_cores(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
                        self.job.constraint = 2  
-                       self.simulation.constraint_util[1][0] = self.simulation.constraint_util[1][0] + len(worker_indices)
-                       self.simulation.constraint_util[1][1] = self.simulation.constraint_util[1][1] - len(worker_indices)
+                       #self.simulation.constraint_util[1][0] = self.simulation.constraint_util[1][0] + len(worker_indices)
+                       #self.simulation.constraint_util[1][1] = self.simulation.constraint_util[1][1] - len(worker_indices)
 
                     elif y < 50 and x < 60:
-                       worker_indices = self.simulation.find_workers_num_cpus(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
+                       worker_indices = self.simulation.find_workers_max_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
                        self.job.constraint = 3    
-                       self.simulation.constraint_util[2][0] = self.simulation.constraint_util[2][0] + len(worker_indices)
-                       self.simulation.constraint_util[2][1] = self.simulation.constraint_util[2][1] - len(worker_indices)
+                       #self.simulation.constraint_util[2][0] = self.simulation.constraint_util[2][0] + len(worker_indices)
+                       #self.simulation.constraint_util[2][1] = self.simulation.constraint_util[2][1] - len(worker_indices)
 
                     elif y < 60 and x < 70:
-                       worker_indices = self.simulation.find_workers_kernel(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                       worker_indices = self.simulation.find_workers_min_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
                        self.job.constraint = 4    
-                       self.simulation.constraint_util[3][0] = self.simulation.constraint_util[3][0] + len(worker_indices)
-                       self.simulation.constraint_util[3][1] = self.simulation.constraint_util[3][1] - len(worker_indices)
+                       #self.simulation.constraint_util[3][0] = self.simulation.constraint_util[3][0] + len(worker_indices)
+                       #self.simulation.constraint_util[3][1] = self.simulation.constraint_util[3][1] - len(worker_indices)
 
                     elif y < 75 and x < 80:
-                       worker_indices = self.simulation.find_workers_min_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                       worker_indices = self.simulation.find_workers_num_cpus(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
                        self.job.constraint = 5    
-                       self.simulation.constraint_util[4][0] = self.simulation.constraint_util[4][0] + len(worker_indices)
-                       self.simulation.constraint_util[4][1] = self.simulation.constraint_util[4][1] - len(worker_indices)
+                       #self.simulation.constraint_util[4][0] = self.simulation.constraint_util[4][0] + len(worker_indices)
+                       #self.simulation.constraint_util[4][1] = self.simulation.constraint_util[4][1] - len(worker_indices)
                 
                     elif y < 80 and x < 80:
-                       worker_indices = self.simulation.find_workers_max_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                       worker_indicen = self.simulation.find_workers_kernel(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
                        self.job.constraint = 6    
-                       self.simulation.constraint_util[5][0] = self.simulation.constraint_util[5][0] + len(worker_indices)
-                       self.simulation.constraint_util[5][1] = self.simulation.constraint_util[5][1] - len(worker_indices)
+                       #self.simulation.constraint_util[5][0] = self.simulation.constraint_util[5][0] + len(worker_indices)
+                       #self.simulation.constraint_util[5][1] = self.simulation.constraint_util[5][1] - len(worker_indices)
 
                     elif y < 88 and x < 60:
                        worker_indices = self.simulation.find_workers_clock_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
                        self.job.constraint = 7    
-                       self.simulation.constraint_util[6][0] = self.simulation.constraint_util[6][0] + len(worker_indices)
-                       self.simulation.constraint_util[6][1] = self.simulation.constraint_util[6][1] - len(worker_indices)
+                       #self.simulation.constraint_util[6][0] = self.simulation.constraint_util[6][0] + len(worker_indices)
+                       #self.simulation.constraint_util[6][1] = self.simulation.constraint_util[6][1] - len(worker_indices)
 
                     elif y < 100 and x < 50:
                        worker_indices = self.simulation.find_workers_eth_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
                        self.job.constraint = 8    
-                       self.simulation.constraint_util[7][0] = self.simulation.constraint_util[7][0] + len(worker_indices)
-                       self.simulation.constraint_util[7][1] = self.simulation.constraint_util[7][1] - len(worker_indices)
+                       #self.simulation.constraint_util[7][0] = self.simulation.constraint_util[7][0] + len(worker_indices)
+                       #self.simulation.constraint_util[7][1] = self.simulation.constraint_util[7][1] - len(worker_indices)
 
                 else:
                     worker_indices = self.simulation.find_workers_random(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
@@ -640,7 +640,7 @@ class Worker(object):
         self.free_slots.pop(0)
         self.simulation.decrease_free_slots_for_load_tracking(self)
         
-        if (self.simulation.CRV_ENABLED && CRV_ENABLED):
+        if (self.simulation.CRV_ENABLED):
            pos = self.get_next_probe_acc_to_crv(current_time)
 
         elif (SRPT_ENABLED):
@@ -953,14 +953,14 @@ class Simulation(object):
         self.CRV.append(float(1.777))
         self.CRV.append(float(1.7567))
         self.CRV.append(float(1.9122))
-        self.constraint_array.append(TOTAL_WORKERS)
+        self.constraint_array.append(0)
+        self.constraint_array.append(random.randint(0,0.30*TOTAL_WORKERS))
+        self.constraint_array.append(random.randint(0,0.70*TOTAL_WORKERS))
+        self.constraint_array.append(random.randint(0,0.45*TOTAL_WORKERS))
+        self.constraint_array.append(random.randint(0,0.15*TOTAL_WORKERS))
+        self.constraint_array.append(random.randint(0,0.22*TOTAL_WORKERS))
+        self.constraint_array.append(random.randint(0,0.70*TOTAL_WORKERS))
         self.constraint_array.append(random.randint(0,0.35*TOTAL_WORKERS))
-        self.constraint_array.append(random.randint(0,0.75*TOTAL_WORKERS))
-        self.constraint_array.append(random.randint(0,0.50*TOTAL_WORKERS))
-        self.constraint_array.append(random.randint(0,0.20*TOTAL_WORKERS))
-        self.constraint_array.append(random.randint(0,0.27*TOTAL_WORKERS))
-        self.constraint_array.append(random.randint(0,0.75*TOTAL_WORKERS))
-        self.constraint_array.append(random.randint(0,0.40*TOTAL_WORKERS))
     
         self.constraint_util.append([0,float(((TOTAL_WORKERS)-1))])
         self.constraint_util.append([0,float((0.6 *TOTAL_WORKERS))])
@@ -1097,6 +1097,7 @@ class Simulation(object):
         nr_probes = max(probe_ratio*nr_tasks,MIN_NR_PROBES)
         for it in range(0,nr_probes):
             rnd_index = random.randint(0,int((len(possible_worker_indices)-1)))
+            #print rnd_index,len(possible_worker_indices)
             chosen_worker_indices.append(possible_worker_indices[rnd_index])
         return chosen_worker_indices
 
@@ -1104,7 +1105,8 @@ class Simulation(object):
         chosen_worker_indices = []
         nr_probes = max(probe_ratio*nr_tasks,MIN_NR_PROBES)
         for it in range(0,nr_probes):
-            rnd_index = random.randint(int(self.constraint_array[1]) , int(self.constraint_array[1] + 0.6*TOTAL_WORKERS))
+            rnd_index = random.randint(int(self.constraint_array[1]) , int(self.constraint_array[1] + 0.6*len(possible_worker_indices)))
+            #print rnd_index,len(possible_worker_indices)
             chosen_worker_indices.append(possible_worker_indices[rnd_index])
         return chosen_worker_indices
 	
@@ -1112,7 +1114,8 @@ class Simulation(object):
         chosen_worker_indices = []
         nr_probes = max(probe_ratio*nr_tasks,MIN_NR_PROBES)
         for it in range(0,nr_probes):
-            rnd_index = random.randint(int(self.constraint_array[2]) , int(self.constraint_array[2] +0.20*TOTAL_WORKERS))
+            rnd_index = random.randint(int(self.constraint_array[2]) , int(self.constraint_array[2] +0.20*len(possible_worker_indices)))
+            #print rnd_index,len(possible_worker_indices)
             #print rnd_index
             chosen_worker_indices.append(possible_worker_indices[rnd_index])
         return chosen_worker_indices
@@ -1121,7 +1124,8 @@ class Simulation(object):
         chosen_worker_indices = []
         nr_probes = max(probe_ratio*nr_tasks,MIN_NR_PROBES)
         for it in range(0,nr_probes):
-            rnd_index = random.randint(int(self.constraint_array[3]) , int(self.constraint_array[3] + 0.45*TOTAL_WORKERS))
+            rnd_index = random.randint(int(self.constraint_array[3]) , int(self.constraint_array[3] + 0.45*len(possible_worker_indices)))
+            #print rnd_index,len(possible_worker_indices)
             chosen_worker_indices.append(possible_worker_indices[rnd_index])
         return chosen_worker_indices
 
@@ -1129,7 +1133,8 @@ class Simulation(object):
         chosen_worker_indices = []
         nr_probes = max(probe_ratio*nr_tasks,MIN_NR_PROBES)
         for it in range(0,nr_probes):
-            rnd_index = random.randint(int(self.constraint_array[4]) ,int(self.constraint_array[4] + 0.75*TOTAL_WORKERS))
+            rnd_index = random.randint(int(self.constraint_array[4]) ,int(self.constraint_array[4] + 0.75*len(possible_worker_indices)))
+            #print rnd_index,len(possible_worker_indices)
             chosen_worker_indices.append(possible_worker_indices[rnd_index])
         return chosen_worker_indices
 
@@ -1137,7 +1142,8 @@ class Simulation(object):
         chosen_worker_indices = []
         nr_probes = max(probe_ratio*nr_tasks,MIN_NR_PROBES)
         for it in range(0,nr_probes):
-            rnd_index = random.randint(int(self.constraint_array[5]) , int(self.constraint_array[5] + 0.69*TOTAL_WORKERS))
+            rnd_index = random.randint(int(self.constraint_array[5]) , int(self.constraint_array[5] + 0.69*len(possible_worker_indices)))
+            #print rnd_index,len(possible_worker_indices)
             chosen_worker_indices.append(possible_worker_indices[rnd_index])
         return chosen_worker_indices
 
@@ -1145,7 +1151,8 @@ class Simulation(object):
         chosen_worker_indices = []
         nr_probes = max(probe_ratio*nr_tasks,MIN_NR_PROBES)
         for it in range(0,nr_probes):
-            rnd_index = random.randint(int(self.constraint_array[6]), int(self.constraint_array[6]+ 0.22*TOTAL_WORKERS))
+            rnd_index = random.randint(int(self.constraint_array[6]), int(self.constraint_array[6]+ 0.22*len(possible_worker_indices)))
+            #print rnd_index,len(possible_worker_indices)
             chosen_worker_indices.append(possible_worker_indices[rnd_index])
         return chosen_worker_indices
 
@@ -1153,7 +1160,8 @@ class Simulation(object):
         chosen_worker_indices = []
         nr_probes = max(probe_ratio*nr_tasks,MIN_NR_PROBES)
         for it in range(0,nr_probes):
-            rnd_index = random.randint(int(self.constraint_array[7]) , int(self.constraint_array[7] + 0.58*TOTAL_WORKERS))
+            rnd_index = random.randint(int(self.constraint_array[7]) , int(self.constraint_array[7] + 0.58*len(possible_worker_indices)))
+            #print rnd_index,len(possible_worker_indices)
             chosen_worker_indices.append(possible_worker_indices[rnd_index])
         return chosen_worker_indices
 
@@ -1442,7 +1450,7 @@ class Simulation(object):
             self.shared_cluster_status = self.cluster_status_keeper.get_queue_status()
             self.event_queue.put((0, WorkerHeartbeatEvent(self))) 
 
-        self.event_queue.put((0,NodeStatusKeeper(self)))
+        #self.event_queue.put((0,NodeStatusKeeper(self)))
         line = self.jobs_file.readline()
         new_job = Job(self.task_distribution, line, estimate_distribution, self.off_mean_bottom, self.off_mean_top)
         self.event_queue.put((float(line.split()[0]), JobArrival(self, self.task_distribution, new_job, self.jobs_file)))
