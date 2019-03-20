@@ -1,4 +1,4 @@
-Hawk/Eagle simulator
+Modified Eagle simulator to do constraint aware scehduling in Phoenix
 
 
 Download pypy and install it on your local directory and use that path
