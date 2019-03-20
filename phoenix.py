@@ -9,6 +9,79 @@ import copy
 import collections
 import sys,os
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
+from sklearn import linear_model
+from sklearn import svm,cross_validation
+from sklearn.metrics import mean_squared_error
+from sklearn.cluster import KMeans
+from sklearn import preprocessing
+from sklearn import utils
+from sklearn.externals import joblib
+usage=pd.read_csv("container_usage_1000.csv")
+CHOSEN=0
+#usage=pd.read_csv("server_usage.csv")
+#plt.hist(usage["mem_util"])
+#plt.show()
+print (usage.columns)
+columns = usage.columns.tolist()
+
+columns = [c for c in columns if c in ["cpu_util","disk_util","load1","load5","load15","avg_cpi","avg_mpki","max_cpi","max_mpki"]]
+
+#columns = [c for c in columns if c in ["cpu_util","disk_util","load1","load5","load15"]]
+target = "mem_util"
+print(columns)
+
+#corr=usage[usage.columns[2:8]].corr()
+#print (corr)
+#sns.heatmap(corr,xticklabels=corr.columns,yticklabels=corr.columns,vmin=-1,vmax=1,annot=True,cmap="RdYlBu_r")
+#plt.show()
+
+
+
+##cleaning
+#df = usage[usage["cpu_util"]<=100]
+#df.dropna(axis=0,thresh=0)
+#df1 = usage[usage["mem_util"]<=100]
+#df1.dropna(axis=0,thresh=0)
+
+train = usage.sample(frac=0.8, random_state=1)
+test = usage.loc[~usage.index.isin(train.index)]
+print(train.shape)
+print(test.shape)
+
+train.dropna(axis=0,thresh=0)
+test.dropna(axis=0,thresh=0)
+
+#cv_scores = cross_validation.cross_val_score(clf,train[columns],train[target],cv=10)
+#cv_preds = cross_validation.cross_val_predict(clf,train[columns],train[target],cv=10)
+#print (metric.accuracy_score(test[target],cv_preds))
+"""
+model = LinearRegression()
+model.fit(train[columns], train[target])
+predictions = model.predict(test[columns])
+print(mean_squared_error(predictions, test[target]))
+"""
+classifiers = [
+    #svm.SVR(),
+    #linear_model.SGDRegressor(),
+    #linear_model.BayesianRidge(),
+    #linear_model.LassoLars(),
+    linear_model.ARDRegression()]
+    #linear_model.TheilSenRegressor(),
+    #linear_model.LinearRegression()]
+"""for item in classifiers:
+    print(item)
+    clf=item
+    clf.fit(train[columns],train[target])
+    preds = clf.predict(test[columns])
+    print(mean_squared_error(preds, test[target]),'\n')
+filename = 'finalized_model.sav'
+joblib.dump(classifiers, filename)
+"""
 
 class TaskDurationDistributions:
     CONSTANT, MEAN, FROM_FILE  = range(3)
@@ -27,6 +100,7 @@ class Job(object):
         self.num_tasks              = int(job_args[1])
         mean_task_duration          = int(float(job_args[2]))
         self.constraint             = 0
+        self.memory = 0
         #dephase the incoming job in case it has the exact submission time as another already submitted job
         if self.start_time not in job_start_tstamps:
             job_start_tstamps[self.start_time] = self.start_time
@@ -114,7 +188,7 @@ class Event(object):
 #####################################################################################################################
 #####################################################################################################################
 
-class JobArrival(Event, file):
+class JobArrival(Event):
 
     def __init__(self, simulation, task_distribution, job, jobs_file):
         self.simulation = simulation
@@ -140,59 +214,67 @@ class JobArrival(Event, file):
                 possible_worker_indices = self.simulation.small_partition_workers
             if SYSTEM_SIMULATED == "IdealEagle":
                 possible_worker_indices = self.simulation.get_list_non_long_job_workers_from_btmap(self.simulation.cluster_status_keeper.get_btmap())
-            
-            if CONSTRAINT_SET and SYSTEM_SIMULATED != "DLWL":
-
-                if x < 100:
-                    if y < 30:  
-                       worker_indices = self.simulation.find_workers_arch(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
-                       self.job.constraint = 1
-                       #self.simulation.constraint_util[0][0] = self.simulation.constraint_util[0][0] + len(worker_indices)
+            if SYSTEM_SIMULATED == "DLWL":
+                possible_worker_indices = self.simulation.small_partition_workers_hash
+            #if y < 20:  
+             #      possible_workers = self.simulation.small_partition_workers_hash
+              #     self.job.memory = abs(y-4)
+               #    worker_indices = self.simulation.find_workers_gpu(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
+                   #print(self.job.memory, worker_indices)
+            #print("constraint",CONSTRAINT_SET)  
+            if (int(CONSTRAINT_SET) == 1):
+                #print("CONSTRAINT SET",y)
+                if y < 20:  
+                   self.job.memory = random.randint(1,9)
+                   possible_workers = self.simulation.small_partition_workers_hash
+                   self.job.constraint = 1 
+                   #print("GPU constraint short job with memory",self.job.memory)
+                   worker_indices = self.simulation.find_workers_gpu(PROBE_RATIO, self.job,self.job.num_tasks, possible_worker_indices)
+#self.simulation.constraint_util[0][0] = self.simulation.constraint_util[0][0] + len(worker_indices)
                        #self.simulation.constraint_util[0][1] = self.simulation.constraint_util[0][1] - len(worker_indices) 
-                    elif y < 40 and x < 60:
-                       worker_indices = self.simulation.find_workers_cores(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
-                       self.job.constraint = 2  
+                elif y < 40 and x < 60:
+                     worker_indices = self.simulation.find_workers_cores(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
+                     self.job.constraint = 2  
                        #self.simulation.constraint_util[1][0] = self.simulation.constraint_util[1][0] + len(worker_indices)
                        #self.simulation.constraint_util[1][1] = self.simulation.constraint_util[1][1] - len(worker_indices)
 
-                    elif y < 50 and x < 60:
-                       worker_indices = self.simulation.find_workers_max_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
-                       self.job.constraint = 3    
+                elif y < 50 and x < 60:
+                     worker_indices = self.simulation.find_workers_max_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
+                     self.job.constraint = 3    
                        #self.simulation.constraint_util[2][0] = self.simulation.constraint_util[2][0] + len(worker_indices)
                        #self.simulation.constraint_util[2][1] = self.simulation.constraint_util[2][1] - len(worker_indices)
 
-                    elif y < 60 and x < 70:
-                       worker_indices = self.simulation.find_workers_min_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
-                       self.job.constraint = 4    
+                elif y < 60 and x < 70:
+                      worker_indices = self.simulation.find_workers_min_disks(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                      self.job.constraint = 4    
                        #self.simulation.constraint_util[3][0] = self.simulation.constraint_util[3][0] + len(worker_indices)
                        #self.simulation.constraint_util[3][1] = self.simulation.constraint_util[3][1] - len(worker_indices)
 
-                    elif y < 75 and x < 80:
-                       worker_indices = self.simulation.find_workers_num_cpus(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
-                       self.job.constraint = 5    
+                elif y < 75 and x < 80:
+                     worker_indices = self.simulation.find_workers_num_cpus(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                     self.job.constraint = 5    
                        #self.simulation.constraint_util[4][0] = self.simulation.constraint_util[4][0] + len(worker_indices)
                        #self.simulation.constraint_util[4][1] = self.simulation.constraint_util[4][1] - len(worker_indices)
                 
-                    elif y < 80 and x < 80:
-                       worker_indicen = self.simulation.find_workers_kernel(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
-                       self.job.constraint = 6    
+                elif y < 80 and x < 80:
+                     worker_indices = self.simulation.find_workers_kernel(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                     self.job.constraint = 6    
                        #self.simulation.constraint_util[5][0] = self.simulation.constraint_util[5][0] + len(worker_indices)
                        #self.simulation.constraint_util[5][1] = self.simulation.constraint_util[5][1] - len(worker_indices)
-
-                    elif y < 88 and x < 60:
-                       worker_indices = self.simulation.find_workers_clock_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
-                       self.job.constraint = 7    
+                elif y < 88 and x < 60:
+                     worker_indices = self.simulation.find_workers_clock_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                     self.job.constraint = 7    
                        #self.simulation.constraint_util[6][0] = self.simulation.constraint_util[6][0] + len(worker_indices)
                        #self.simulation.constraint_util[6][1] = self.simulation.constraint_util[6][1] - len(worker_indices)
 
-                    elif y < 100 and x < 50:
-                       worker_indices = self.simulation.find_workers_eth_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
-                       self.job.constraint = 8    
+                elif y < 100 and x < 50:
+                     worker_indices = self.simulation.find_workers_eth_speed(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)	
+                     self.job.constraint = 8    
                        #self.simulation.constraint_util[7][0] = self.simulation.constraint_util[7][0] + len(worker_indices)
                        #self.simulation.constraint_util[7][1] = self.simulation.constraint_util[7][1] - len(worker_indices)
 
-                else:
-                    worker_indices = self.simulation.find_workers_random(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
+            else:
+                worker_indices = self.simulation.find_workers_random(PROBE_RATIO, self.job.num_tasks, possible_worker_indices)
         
         else:
             #print current_time, ":   Big Job arrived!!", self.job.id, " num tasks ", self.job.num_tasks, " estimated_duration ", self.job.estimated_task_duration
@@ -202,6 +284,7 @@ class JobArrival(Event, file):
                 if self.job.job_type_for_comparison == SMALL:
                     possible_workers = self.simulation.small_partition_workers_hash
                 else:
+                    print("DLWL long job")
                     possible_workers = self.simulation.big_partition_workers_hash
                 estimated_task_durations = [self.job.estimated_task_duration for i in range(len(self.job.unscheduled_tasks))]
                 worker_indices = self.simulation.find_workers_dlwl(estimated_task_durations, self.simulation.shared_cluster_status, current_time, self.simulation, possible_workers)
@@ -252,11 +335,12 @@ class PeriodicTimerEvent(Event):
         big_load         = str(int(10000*(1-self.simulation.free_slots_big_partition*1.0/len(self.simulation.big_partition_workers)))/100.0)
         small_not_big_load ="N/A"
 
-        if (CRV_ENABLED):
+        if (CRV_ENABLED == 1):
+           #print "Crv enabled"
            if threshold_load > 80:
-           #print "load is ",total_load
+              #print "load is ",total_load
               self.simulation.CRV_ENABLED = 1
-              self.simulation.estimate_wait_time()
+              #self.simulation.estimate_wait_time()
            else:
               self.simulation.CRV_ENABLED = 0
 
@@ -304,6 +388,7 @@ class ProbeEvent(Event):
         self.task_length = task_length
         self.job_type_for_scheduling = job_type_for_scheduling
         self.btmap = btmap
+        self.gpu=0
 
     def run(self, current_time):
         #print "*****************adding probes"
@@ -437,6 +522,7 @@ class Worker(object):
         self.id = id
         self.executing_big = False
         self.constraint = set()
+        self.memory=0
         self.tstamp_start_crt_big_task = -1
         self.estruntime_crt_task = -1
         self.last_executed_task = None
@@ -504,17 +590,21 @@ class Worker(object):
             stats.STATS_SH_QUEUED_BEHIND_BIG += 1        
 
         self.queued_probes.append([job_id,task_length,(self.executing_big == True or self.queued_big > 0), 0, False, queued_time])
-        
-		#print self.queued_probes
+             
+   		#print self.queued_probes
         if (long_job):
             self.queued_big     = self.queued_big + 1
             self.btmap          = copy.deepcopy(btmap)
             self.btmap_tstamp   = current_time
         #self.reorder_queued_probes(current_time)        
         #self.queued_probes.sort(key=lambda tup: tup[1])
+        #print("jobs added till now",self.simulation.jobs[job_id])
+        #if self.simulation.jobs[job_id].constraint == 1:
+           #print("GPU job probe")
+           
 
         if len(self.queued_probes) > 0 and len(self.free_slots) > 0:
-            return self.process_next_probe_in_the_queue(current_time)
+            return self.process_next_probe_in_the_queue(current_time,job_id)
         else:
             return []
 
@@ -527,7 +617,7 @@ class Worker(object):
         self.executing_big = False
 
         if len(self.queued_probes) > 0:
-            return self.process_next_probe_in_the_queue(current_time)
+            return self.process_next_probe_in_the_queue(current_time,-1)
         
         if len(self.queued_probes) == 0 and self.simulation.stealing_allowed == True:
             return self.ask_probes(current_time)
@@ -558,9 +648,9 @@ class Worker(object):
             #print current_time, ": Worker ", self.id," failed to steal. attempts: ",ctr_it
             stats.STATS_STEALING_MESSAGES += ctr_it
 
-        for job_id, task_length, behind_big, cum, sticky in new_probes:
+        for job_id, task_length, behind_big, cum, sticky, self.current_time in new_probes:
             assert (self.simulation.jobs[job_id].job_type_for_comparison != BIG)
-            new_events.extend(self.add_probe(job_id, task_length, SMALL, current_time, None,current_time))
+            new_events.extend(self.add_probe(job_id, task_length, SMALL, current_time, None,self.current_time))
 
         return new_events
 
@@ -634,17 +724,24 @@ class Worker(object):
 
 
     #Worker class
-    def process_next_probe_in_the_queue(self, current_time):
+    def process_next_probe_in_the_queue(self, current_time,job_id):
         global stats
 
         self.free_slots.pop(0)
         self.simulation.decrease_free_slots_for_load_tracking(self)
-        
-        if (self.simulation.CRV_ENABLED):
-           pos = self.get_next_probe_acc_to_crv(current_time)
+        if job_id != -1 and self.simulation.jobs[job_id].constraint == 1:
+           #print("GPU job probe processing")
+           self.memory -= self.simulation.jobs[job_id].memory
+           pos = self.get_next_probe_acc_gpu(current_time)     
 
-        elif (SRPT_ENABLED):
+        if (self.simulation.CRV_ENABLED == 1):
+           #print "reorderding CRV"
+           pos = self.get_next_probe_acc_to_crv(current_time)
+     
+        elif (SRPT_ENABLED == "yes"):
+            #print(SRPT_ENABLED)
             if (SYSTEM_SIMULATED == "Eagle"):
+                #print("SPRT EAGLE caLL")
                 pos = self.get_next_probe_acc_to_sbp_srpt(current_time)
                 if (pos == -1):
                     assert (len(self.queued_probes) == 0)
@@ -783,7 +880,11 @@ class Worker(object):
 
         return position_in_queue
 
-	#Worker class	
+	#Worker class
+    def get_next_probe_acc_gpu(self, current_time):
+         
+        #print("gpu scheduling")
+    	return 0
     def get_next_probe_acc_to_crv(self, current_time):
         min_remaining_exec_time = float('inf')
         position_in_queue       = -1
@@ -851,7 +952,7 @@ class Worker(object):
         for position_it in range(0,len(self.queued_probes)):
             job_id    = self.queued_probes[position_it][0]
             remaining = self.get_remaining_exec_time_for_job(job_id, current_time)
-            assert(remaining >= 0)
+            #assert(remaining >= 0)
 
             estimated_task_duration = self.simulation.jobs[job_id].estimated_task_duration
 
@@ -916,7 +1017,7 @@ class Simulation(object):
         self.constraint_util = []
         self.index_last_worker_of_small_partition = int(SMALL_PARTITION*TOTAL_WORKERS*SLOTS_PER_WORKER/100)-1
         self.index_first_worker_of_big_partition  = int((100-BIG_PARTITION)*TOTAL_WORKERS*SLOTS_PER_WORKER/100)
-        self.CRV_ENABLED = 0
+        self.CRV_ENABLED = int(0)
         while len(self.workers) < TOTAL_WORKERS:
              self.workers.append(Worker(self, SLOTS_PER_WORKER, len(self.workers),self.index_last_worker_of_small_partition,self.index_first_worker_of_big_partition))
             
@@ -971,6 +1072,9 @@ class Simulation(object):
         self.constraint_util.append([0,float((0.22*TOTAL_WORKERS))])
         self.constraint_util.append([0,float((0.58*TOTAL_WORKERS))])
     
+        for index in range(0,int(TOTAL_WORKERS/10)):
+            self.workers[index].memory = 16
+
         for index in range(0,TOTAL_WORKERS):
             if index >0 and index < (int(((TOTAL_WORKERS)-1)%(TOTAL_WORKERS))):
                self.workers[index].constraint.add(1)
@@ -1100,6 +1204,68 @@ class Simulation(object):
             #print rnd_index,len(possible_worker_indices)
             chosen_worker_indices.append(possible_worker_indices[rnd_index])
         return chosen_worker_indices
+
+    def find_workers_gpu_1(self, probe_ratio, job, nr_tasks, possible_worker_indices):
+        chosen = CHOSEN
+        chosen_worker_indices = []
+        possible_workers = []
+        for index in range(0,int(TOTAL_WORKERS/10)):
+            #print(job.memory,index,self.workers[index].memory, job.id)
+                          #print(self.workers[index].memory,job.memory)
+               possible_workers.append(index)
+        for it in range(0,nr_tasks):
+            rnd_index = random.randint(0,int((len(possible_workers)-1)))
+            #print rnd_index,len(possible_worker_indices)
+            if (int(self.workers[rnd_index].memory) >= int(job.memory)):
+                chosen_worker_indices.append(possible_workers[rnd_index])
+        print(len(chosen_worker_indices),nr_tasks)    
+        return chosen_worker_indices
+
+
+    def find_workers_gpu(self, probe_ratio, job, nr_tasks, possible_worker_indices):
+        chosen = CHOSEN
+        chosen_worker_indices = []
+        possible_workers = []
+        for index in range(0,int(TOTAL_WORKERS/10)):
+            #print(job.memory,index,self.workers[index].memory, job.id)
+            if (int(self.workers[index].memory) >= int(job.memory)):
+               #print(self.workers[index].memory,job.memory)
+               possible_workers.append(index)
+        mem_reduction = 0.0
+        while(len(chosen_worker_indices) < nr_tasks and mem_reduction <= 0.3) :
+            #print(len(chosen_worker_indices),nr_tasks,mem_reduction,chosen)
+            for it in range(0,nr_tasks):
+                for inde in range(0,len(possible_workers)):
+                    index = random.randint(0,int((len(possible_workers)-1)))     
+                    if(chosen == 1):
+                       break
+                    if (self.workers[possible_workers[index]].queued_probes):
+                       chosen_worker_indices.append(possible_workers[index])
+                       break
+                    else:
+                       for i in range(len(self.workers[possible_workers[index]].queued_probes)):
+                           chosen=0
+                           if(mem_reduction == 0): 
+                              if (self.jobs[self.workers[possible_workers[index]].queued_probes[i][0]].memory) > (job.memory):
+                                 chosen_worker_indices.append(possible_workers[index])
+                                 chosen=1
+                                 break
+                              else:
+                                 continue
+                           else:
+                              if (self.jobs[self.workers[possible_workers[index]].queued_probes[i][0]].memory) > (job.memory)*mem_reduction:
+                                 chosen_worker_indices.append(possible_workers[index])
+                                 chosen=1
+                                 break
+                              else:
+                                 continue
+
+            mem_reduction += 0.1
+            #rnd_index = random.randint(0,len(possible_workers))
+                #print ("GPU",possible_workers[index],len(possible_workers))
+        print(len(chosen_worker_indices),nr_tasks)    
+        return chosen_worker_indices
+
 
     def find_workers_cores(self, probe_ratio, nr_tasks, possible_worker_indices):
         chosen_worker_indices = []
@@ -1282,7 +1448,7 @@ class Simulation(object):
     #Simulation class
     def send_probes_hawk(self, job, current_time, worker_indices, btmap):
         self.jobs[job.id] = job
-
+        #print("simulation job created",self.jobs[job.id].constraint)
         probe_events = []
         for worker_index in worker_indices:
             probe_events.append((current_time + NETWORK_DELAY, ProbeEvent(self.workers[worker_index], job.id, job.estimated_task_duration, job.job_type_for_scheduling, btmap,current_time + NETWORK_DELAY)))
@@ -1392,7 +1558,7 @@ class Simulation(object):
         #print task_duration
         worker.last_executed_task = task_duration
         task_completion_time = task_duration + get_task_response_time
-        #print current_time, " worker:", worker.id, " task from job ", job_id, " task duration: ", task_duration, " will finish at time ", task_completion_time
+        #print current_time, " worker:", worker.id, " task from job ", job_id,job.job_type_for_comparison," task duration: ", task_duration, " will finish at time ", task_completion_time
         is_job_complete = job.update_task_completion_details(task_completion_time)
 
         if is_job_complete:
@@ -1402,6 +1568,9 @@ class Simulation(object):
             print >> finished_file, task_completion_time," estimated_task_duration: ",job.estimated_task_duration, " by_def: ",job.job_type_for_comparison, " total_job_running_time: ",(job.end_time - job.start_time)
 
             if job.job_type_for_comparison == 0 and job.estimated_task_duration != 0:
+              
+                print >> worker_file, "Worker ", worker.id," queued_tasks " ,len(worker.queued_probes)
+
                 print >> short_file, task_completion_time,",", job.estimated_task_duration,",", (job.end_time - job.start_time),",", (float((job.end_time - job.start_time)-job.estimated_task_duration)/float(job.estimated_task_duration))*(-100)
             elif job.estimated_task_duration != 0:
                 print >> long_file, task_completion_time,",",job.estimated_task_duration,",", (job.end_time - job.start_time),",", (float((job.end_time - job.start_time)-job.estimated_task_duration)/float(job.estimated_task_duration))*(-100)
@@ -1430,7 +1599,7 @@ class Simulation(object):
         last_time = 0
 
         self.jobs_file = open(self.WORKLOAD_FILE, 'r')
-
+        print("SRPT ENABLED",SRPT_ENABLED)
         self.task_distribution = TaskDurationDistributions.FROM_FILE
 
         estimate_distribution = EstimationErrorDistribution.MEAN
@@ -1461,11 +1630,11 @@ class Simulation(object):
         self.update_constrained_list(self.cluster_status_keeper.get_cmap())
         while (not self.event_queue.empty()):
             current_time, event = self.event_queue.get()
-            #print event
+            #print (event)
             assert current_time >= last_time
             last_time = current_time
             new_events = event.run(current_time)
-            #print "probe addeed****************"
+            #print ("probe addeed****************")
             for new_event in new_events:
                 self.event_queue.put(new_event)
         #print "Simulation ending, no more events"
@@ -1481,7 +1650,7 @@ SMALL = 0
 job_start_tstamps = {}
 
 if(len(sys.argv) != 24):
-    print "Incorrent number of parameters."
+    print ("Incorrent number of parameters.")
     sys.exit(1)
 
 
@@ -1502,11 +1671,11 @@ STEALING_STRATEGY               = sys.argv[14]
 STEALING_LIMIT                  = int(sys.argv[15])         #cap on the nr of tasks to steal from one node
 STEALING_ATTEMPTS               = int(sys.argv[16])         #cap on the nr of nodes to contact for stealing
 TOTAL_WORKERS                   = int(sys.argv[17])
-SRPT_ENABLED                    = (sys.argv[18] == "yes")
+SRPT_ENABLED                    = (sys.argv[18])
 HEARTBEAT_DELAY                 = int(sys.argv[19])
 SYSTEM_SIMULATED                = sys.argv[20]  
 CONSTRAINT_SET					= sys.argv[21]
-CRV_ENABLED						= sys.argv[22]
+CRV_ENABLED						= int(sys.argv[22])
 FOLDER_NAME						= sys.argv[23]
 
 if not os.path.exists(os.path.dirname(FOLDER_NAME)):
@@ -1520,6 +1689,7 @@ load_full_path = os.path.join(FOLDER_NAME, 'load_file.txt')
 stats_full_path = os.path.join(FOLDER_NAME, 'stats_file.txt')
 short_path = os.path.join(FOLDER_NAME, 'short_file.csv')
 long_path = os.path.join(FOLDER_NAME, 'long_file.csv')
+worker_path = os.path.join(FOLDER_NAME, 'worker_file.csv')
 
 
 
@@ -1528,6 +1698,7 @@ load_file       = open(load_full_path, 'w')
 stats_file      = open(stats_full_path, 'w')
 short_file      = open(short_path,'w')
 long_file      = open(long_path,'w')
+worker_file     = open(worker_path,'w')
 
 MIN_NR_PROBES = 20 #1/100*TOTAL_WORKERS
 CAP_SRPT_SBP = 5 #cap on the % of slowdown a job can tolerate for SRPT and SBP
