@@ -1,5 +1,7 @@
 Modified Eagle simulator to do constraint aware scehduling in Phoenix
-The CRV parameters are updated based on in Sharma, Bikash, et al. "Modeling and synthesizing task placement constraints in Google compute clusters." Proceedings of the 2nd ACM Symposium on Cloud Computing. ACM, 2011.
+The CRV parameters are updated based on in Sharma, Bikash, et al. 
+"Modeling and synthesizing task placement constraints in Google compute clusters." 
+Proceedings of the 2nd ACM Symposium on Cloud Computing. ACM, 2011.
 
 Download pypy and install it on your local directory and use that path
 Download traces from the dropbox link
