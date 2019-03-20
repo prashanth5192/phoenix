@@ -40,6 +40,7 @@ Eagle (as of May 26th 2016 under submission - see EPFL Tech report http://infosc
 IdealEagle (an idealized version of Eagle used as a comparison point for Eagle)
 LWL (an LWL implementation used as a comparison point for Eagle)
 DLWL (a Distributed version of LWL, shared state based on Heartbeats)
+Phoenix (published in ICDCS 17)
 The simulator takes a number of parameters:
 
 path to input trace (e.g. /media/hdd/traces/GOOG.tr)
