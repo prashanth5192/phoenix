@@ -3,6 +3,11 @@ The CRV parameters are updated based on in Sharma, Bikash, et al.
 "Modeling and synthesizing task placement constraints in Google compute clusters." 
 Proceedings of the 2nd ACM Symposium on Cloud Computing. ACM, 2011.
 
+If you use our setup, please cite our Phoenix work,
+Thinakaran, Prashanth, et al. "Phoenix: A constraint-aware scheduler for heterogeneous
+datacenters." 2017 IEEE 37th International Conference on Distributed Computing Systems 
+(ICDCS). IEEE, 2017.
+
 Download pypy and install it on your local directory and use that path
 Download traces from the dropbox link
 https://www.dropbox.com/sh/bhk5zxreyplus73/AADxmp60oqxh7jq9qkCzoJX5a?dl=0
